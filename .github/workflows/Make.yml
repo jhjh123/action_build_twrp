@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     if: github.event.repository.owner.id == github.event.sender.id
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     
     steps:
     - name: Check Out
@@ -114,13 +114,12 @@ jobs:
       #  cp ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk ${{ steps.pwd.outputs.pwd }}/build/core/product_config.mk
      #
   
-    - name: Start Building (Normal Mode)
+    - name: Start Building 
       run: |
-          PATH=~/bin:$PATH
           cd workspace
           export ALLOW_MISSING_DEPENDENCIES=true
           . build/envsetup.sh
-          lunch twrp_<device>-eng
+          lunch twrp_apollo-eng
           mka recoveryimage
     #- name: Start Building (Normal Mode)
      # if: steps.var.outputs.use_omin_head == 'false'
