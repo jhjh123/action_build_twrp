@@ -76,13 +76,13 @@ jobs:
         mkdir .repo/local_manifests
       id: pwd
       
-    - name: Fix the bug of missing common
-      if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_misscom == 'true'
-      run: cp repair/omni-9.0/qcom.xml workspace/.repo/local_manifests/
+   # - name: Fix the bug of missing common
+  #    if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_misscom == 'true'
+    #  run: cp repair/omni-9.0/qcom.xml workspace/.repo/local_manifests/
       
-    - name: Fix busybox bug
-      if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_busybox == 'true'
-      run: cp repair/omni-9.0/busybox.xml workspace/.repo/local_manifests/
+   # - name: Fix busybox bug
+    #  if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_busybox == 'true'
+    #  run: cp repair/omni-9.0/busybox.xml workspace/.repo/local_manifests/
       
    # - name: Clone your own device tree
       #   if: steps.var.outputs.use_own_dt == 'true'
@@ -104,39 +104,47 @@ jobs:
       run: |
           PATH=~/bin:$PATH
           cd workspace
-          git clone https://github.com/twrpdtgen/android_device_xiaomi_apollo.git
-          
-    - name: Fix cannot locate product
-      if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_product == 'true'
-      run: |
-        cd ${{ steps.pwd.outputs.pwd }}/build/core
-        rm -rf product_config.mk
-        sed -i 's!device_code!${{ steps.var.outputs.device_code }}!g' ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk
-        cp ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk ${{ steps.pwd.outputs.pwd }}/build/core/product_config.mk
-      
+          git clone  https://github.com/jhjh123/android_device_xiaomi_apollo.git
+   # - name: Fix cannot locate product
+     # if: steps.var.outputs.use_repair_manifest == 'true' && steps.var.outputs.fix_product == 'true'
+   #   run: |
+     #   cd ${{ steps.pwd.outputs.pwd }}/build/core
+     #   rm -rf product_config.mk
+       # sed -i 's!device_code!${{ steps.var.outputs.device_code }}!g' ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk
+      #  cp ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk ${{ steps.pwd.outputs.pwd }}/build/core/product_config.mk
+     #
+  
     - name: Start Building (Normal Mode)
-      if: steps.var.outputs.use_omin_head == 'false'
       run: |
-        PATH=~/bin:$PATH
-        cd ${{ steps.pwd.outputs.pwd }}
-        tree ./device
-        export ALLOW_MISSING_DEPENDENCIES=true
-        source build/envsetup.sh
-        lunch ${{ steps.var.outputs.device_code }}-eng 
-        make clean
-        make recoveryimage -j$(nproc --all)
+          PATH=~/bin:$PATH
+          cd workspace
+          export ALLOW_MISSING_DEPENDENCIES=true
+          . build/envsetup.sh
+          lunch twrp_<device>-eng
+          mka recoveryimage
+    #- name: Start Building (Normal Mode)
+     # if: steps.var.outputs.use_omin_head == 'false'
+     # run: |
+       # PATH=~/bin:$PATH
+      #  cd ${{ steps.pwd.outputs.pwd }}
+      #  tree ./device
+       # export ALLOW_MISSING_DEPENDENCIES=true
+       # source build/envsetup.sh
+       # lunch ${{ steps.var.outputs.device_code }}-eng 
+       # make clean
+      #  make recoveryimage -j$(nproc --all)
         
-    - name: Start Building (Omni Mode)
-      if: steps.var.outputs.use_omin_head == 'true'
-      run: |
-        PATH=~/bin:$PATH
-        cd ${{ steps.pwd.outputs.pwd }}
-        tree ./device
-        export ALLOW_MISSING_DEPENDENCIES=true
-        source build/envsetup.sh
-        lunch omni_${{ steps.var.outputs.device_code }}-eng 
-        make clean
-        make recoveryimage -j$(nproc --all)            
+  #  - name: Start Building (Omni Mode)
+   #   if: steps.var.outputs.use_omin_head == 'true'
+   #   run: |
+  #      PATH=~/bin:$PATH
+    #    cd ${{ steps.pwd.outputs.pwd }}
+     #   tree ./device
+     #  export ALLOW_MISSING_DEPENDENCIES=true
+     #   source build/envsetup.sh
+      #  lunch omni_${{ steps.var.outputs.device_code }}-eng 
+       # make clean
+       # make recoveryimage -j$(nproc --all)            
       
     - name: Upload File to Release
       uses: softprops/action-gh-release@v1
